@@ -1,0 +1,9 @@
+{{#sprites}}
+pub const @"{{name}}" = struct {
+    pub const data = [{{length}}]u8{ {{bytes}} };
+    pub const width = {{width}};
+    pub const height = {{height}};
+    pub const flags = {{flags}}; // {{flagsHumanReadable}}
+};
+
+{{/sprites}}

@@ -1,0 +1,34 @@
+const std = @import("std");
+const Game = @import("Game");
+const math = std.math;
+
+const w4 = @import("w4");
+
+x: f32 = 0,
+y: f32 = 0,
+
+pub fn init(x: f32, y: f32) @This() {
+    return @This(){ .x = x, .y = y };
+}
+
+pub fn eql(this: @This(), other: @This()) bool {
+    const x1, const y1 = this.normalized();
+    const x2, const y2 = other.normalized();
+    return x1 == x2 and y1 == y2;
+}
+
+pub fn random(rng: std.Random) @This() {
+    const max = w4.SCREEN_SIZE / Game.PIXEL_SIZE;
+    return @This(){
+        .x = rng.float(f32) * max,
+        .y = rng.float(f32) * max,
+    };
+}
+
+/// Normalized into integer coordinates
+pub fn normalized(this: @This()) struct { i32, i32 } {
+    return .{
+        @intFromFloat(math.round(this.x)),
+        @intFromFloat(math.round(this.y)),
+    };
+}
