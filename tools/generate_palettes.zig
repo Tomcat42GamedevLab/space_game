@@ -34,9 +34,9 @@ pub fn main() !void {
             fs.path.extension(args[i]),
         );
         const file_contents = try fs.cwd().readFileAlloc(
-            args[i],
             arena,
-            Io.Limit.unlimited,
+            args[i],
+            math.maxInt(u32),
         );
         const file_colors = try hexToSlice(arena, file_contents);
         const line = try sliceToSrc(arena, file_name, file_colors);
