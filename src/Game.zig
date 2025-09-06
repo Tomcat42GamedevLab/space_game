@@ -72,6 +72,9 @@ pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
                 &this.player,
                 this.remaining_time,
             );
+            inline for (0..PLANET_COUNT) |i| {
+                this.planets[i].draw(this.camera_position);
+            }
         },
         .Win => {
             const msg = try fmt.allocPrint(
@@ -115,13 +118,13 @@ fn input(this: *@This(), rng: std.Random) void {
     if (gamepadState.@"1" and (gameState == .Over or gameState == .Win))
         this.reset(rng);
 
-    if (gamepadState.left) this.player.move(.Left);
+    if (gamepadState.left) this.camera_position = this.player.move(.Left, this.camera_position);
 
-    if (state.right) this.camera_position = this.player.move(.Right, this.camera_position);
+    if (gamepadState.right) this.camera_position = this.player.move(.Right, this.camera_position);
 
-    if (state.up) this.camera_position = this.player.move(.Up, this.camera_position);
+    if (gamepadState.up) this.camera_position = this.player.move(.Up, this.camera_position);
 
-    if (state.down) this.camera_position = this.player.move(.Down, this.camera_position);
+    if (gamepadState.down) this.camera_position = this.player.move(.Down, this.camera_position);
 }
 
 fn colide(this: *@This(), allocator: mem.Allocator) !void {
