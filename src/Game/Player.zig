@@ -16,7 +16,7 @@ const w4 = @import("w4");
 
 position: Position = .{},
 direction: Direction = .Up,
-speed: f32 = 0.55,
+speed: f32 = 1.55,
 collider: Collider = .{},
 
 pub fn init(position: Position) @This() {
@@ -40,7 +40,7 @@ pub fn draw(this: *const @This(), camera: *const Camera, isForward: bool) void {
         spriteY = 0;
     }
 
-    w4.DRAW_COLORS.* = 0x0032;
+    w4.DRAW_COLORS.* = 0x0042;
     switch (this.direction) {
         .Up, .Down, .Left, .Right => {
             w4.blitSub(
@@ -123,13 +123,13 @@ pub fn draw(this: *const @This(), camera: *const Camera, isForward: bool) void {
         },
     }
     // Draw the player colisor
-    w4.DRAW_COLORS.* = 0x0040;
-    w4.rect(
-        x - @as(i32, @intFromFloat(this.collider.width / 2)),
-        y - @as(i32, @intFromFloat(this.collider.height / 2)),
-        @intFromFloat(this.collider.width),
-        @intFromFloat(this.collider.height),
-    );
+    // w4.DRAW_COLORS.* = 0x0040;
+    // w4.rect(
+    //     x - @as(i32, @intFromFloat(this.collider.width / 2)),
+    //     y - @as(i32, @intFromFloat(this.collider.height / 2)),
+    //     @intFromFloat(this.collider.width),
+    //     @intFromFloat(this.collider.height),
+    // );
 }
 
 pub fn move(this: *@This(), dir: Direction, gamepad: Gamepad) void {

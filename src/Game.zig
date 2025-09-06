@@ -19,7 +19,7 @@ pub const Direction = Position.Direction;
 pub const Sound = @import("Game/sound.zig");
 
 const Game = @This();
-pub const PLANET_COUNT = 2;
+pub const PLANET_COUNT = 5;
 pub const WORLD_LIMIT_X = 5000;
 pub const WORLD_LIMIT_Y = 5000;
 
@@ -58,7 +58,7 @@ const loseSound: [3]Sound = .{
 pub fn init(allocator: mem.Allocator, rng: std.Random) !@This() {
     _ = rng; // autofix
     _ = allocator; // autofix
-    w4.PALETTE.* = palettes.bittersweet;
+    w4.PALETTE.* = palettes.nostalgia;
 
     const planets: [PLANET_COUNT]Planet = .{
         Planet.init(
@@ -66,14 +66,35 @@ pub fn init(allocator: mem.Allocator, rng: std.Random) !@This() {
             .{ .x = 0, .y = 0 },
             80,
             0.0,
-            0xFF00FF,
+            0xFFFF00,
         ),
         Planet.init(
             "Alder",
-            .{ .x = 100, .y = 0 },
+            .{ .x = 300, .y = 0 },
             15,
             0.03,
             0xFF0000,
+        ),
+        Planet.init(
+            "WASP-121",
+            .{ .x = 500, .y = 0 },
+            100,
+            0.01,
+            0x005412,
+        ),
+        Planet.init(
+            "Sirius",
+            .{ .x = 1000, .y = 0 },
+            15,
+            0.02,
+            0xFFFFFF,
+        ),
+        Planet.init(
+            "Cygnus",
+            .{ .x = 2000, .y = 0 },
+            500,
+            0.001,
+            0xAA32AF,
         ),
     };
 
@@ -116,7 +137,7 @@ pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
         },
         .Running => {
             defer {
-                w4.PALETTE.*[3] = Player.getNearestPlanetColor(&this.player, &this.planets);
+                w4.PALETTE.*[2] = Player.getNearestPlanetColor(&this.player, &this.planets);
                 // if (this.panicSoundOn) {
                 //     this.timeSound = this.timeSound + 1;
                 //     if (this.t) {
@@ -214,7 +235,7 @@ fn reset(this: *@This(), rng: std.Random) void {
     this.frame = 0;
     this.remaining_time = SECONDS_TO_DIE;
     this.player = Player.init(Position.random(rng));
-    w4.PALETTE.* = palettes.bittersweet;
+    w4.PALETTE.* = palettes.nostalgia;
 }
 
 fn input(this: *@This(), rng: std.Random) bool {

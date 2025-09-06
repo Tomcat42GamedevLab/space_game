@@ -35,7 +35,7 @@ pub fn draw(this: *const @This(), camera: *const Camera) void {
     const posCenterWorld = camera.worldToCamera(Position.init(0, 0));
     const x, const y = posInCameraSystem.normalized();
 
-    w4.DRAW_COLORS.* = 0x0032;
+    w4.DRAW_COLORS.* = 0x0033;
     w4.oval(
         x - @as(i32, @intCast(@divTrunc(this.size, 2))),
         y - @as(i32, @intCast(@divTrunc(this.size, 2))),
@@ -55,13 +55,13 @@ pub fn draw(this: *const @This(), camera: *const Camera) void {
     );
 
     // Draw the player colisor
-    w4.DRAW_COLORS.* = 0x0040;
-    w4.rect(
-        x - @as(i32, @intFromFloat(this.collider.width / 2)),
-        y - @as(i32, @intFromFloat(this.collider.height / 2)),
-        @intFromFloat(this.collider.width),
-        @intFromFloat(this.collider.height),
-    );
+    // w4.DRAW_COLORS.* = 0x0040;
+    // w4.rect(
+    //     x - @as(i32, @intFromFloat(this.collider.width / 2)),
+    //     y - @as(i32, @intFromFloat(this.collider.height / 2)),
+    //     @intFromFloat(this.collider.width),
+    //     @intFromFloat(this.collider.height),
+    // );
 }
 
 pub fn move(this: *@This(), t: usize) void {
