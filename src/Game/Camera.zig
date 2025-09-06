@@ -15,17 +15,23 @@ pub fn init(position: Position) @This() {
     return .{ .position = position };
 }
 
-pub fn move(this: *@This(), dir: Direction) void {
-    const offset = dir.getPositionOffset();
+pub fn move(this: *@This(), player_pos: Position) void {
+    const camera_smoothing = 20;
+
+    // const camera_target_x = math.clamp(this.position.x, player_pos.x - 40, player_pos.x + 40) - 60;
+    // const camera_target_y = math.clamp(this.position.y, player_pos.y - 40, player_pos.y + 40) + 60;
+
+    const camera_target_x = player_pos.x - 60;
+    const camera_target_y = player_pos.y + 60;
 
     this.position.x = math.clamp(
-        this.position.x + offset.x * this.speed,
+        ((this.position.x) * (camera_smoothing - 1) + camera_target_x) / camera_smoothing,
         -Game.WORLD_LIMIT_X,
         Game.WORLD_LIMIT_X,
     );
 
     this.position.y = math.clamp(
-        this.position.y - offset.y * this.speed,
+        ((this.position.y) * (camera_smoothing - 1) + camera_target_y) / camera_smoothing,
         -Game.WORLD_LIMIT_Y,
         Game.WORLD_LIMIT_Y,
     );

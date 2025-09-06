@@ -79,6 +79,7 @@ pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
             inline for (0..PLANET_COUNT) |i| {
                 this.planets[i].draw(&this.camera);
             }
+            this.camera.move(this.player.position);
         },
         .Win => {
             const msg = try fmt.allocPrint(
@@ -135,11 +136,12 @@ fn colide(this: *@This(), allocator: mem.Allocator) !void {
     // Check collisions with player 1
     const player = this.player;
     const x1, const y1 = player.position.normalized();
+    const x2, const y2 = this.camera.position.normalized();
 
     const msg = try fmt.allocPrint(
         allocator,
-        "Player: ({}, {})",
-        .{ x1, y1 },
+        "Player: ({}, {}) Camera: ({}, {})",
+        .{ x1, y1, x2, y2 },
     );
     defer allocator.free(msg);
     w4.trace(msg);
