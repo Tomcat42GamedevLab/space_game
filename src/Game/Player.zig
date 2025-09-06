@@ -8,8 +8,6 @@ const Camera = Game.Camera;
 const Collider = Game.Collider;
 const Direction = Position.Direction;
 const sprites = @import("sprites");
-const spaceship = sprites.spacheship;
-const spaceshipR = sprites.spaceshipRotate;
 const spritesheet = sprites.spritesheet;
 
 const w4 = @import("w4");
@@ -52,14 +50,14 @@ pub fn draw(this: *const @This(), camera: *const Camera, isForward: bool) void {
                 spriteY,
                 68,
                 switch (this.direction) {
-                    .Up => spaceship.flags,
-                    .Down => spaceship.flags | w4.BLIT_FLIP_Y,
-                    .Left => spaceship.flags | w4.BLIT_ROTATE,
-                    .Right => spaceship.flags | w4.BLIT_ROTATE | w4.BLIT_FLIP_Y,
-                    .UR => spaceshipR.flags,
-                    .UL => spaceshipR.flags | w4.BLIT_FLIP_Y,
-                    .DR => spaceshipR.flags | w4.BLIT_ROTATE,
-                    .DL => spaceshipR.flags | w4.BLIT_ROTATE | w4.BLIT_FLIP_Y,
+                    .Up => spritesheet.flags,
+                    .Down => spritesheet.flags | w4.BLIT_FLIP_Y,
+                    .Left => spritesheet.flags | w4.BLIT_ROTATE,
+                    .Right => spritesheet.flags | w4.BLIT_ROTATE | w4.BLIT_FLIP_Y,
+                    .UR => spritesheet.flags,
+                    .UL => spritesheet.flags | w4.BLIT_FLIP_Y,
+                    .DR => spritesheet.flags | w4.BLIT_ROTATE,
+                    .DL => spritesheet.flags | w4.BLIT_ROTATE | w4.BLIT_FLIP_Y,
                 },
             );
 
@@ -92,14 +90,14 @@ pub fn draw(this: *const @This(), camera: *const Camera, isForward: bool) void {
                 spriteY,
                 68,
                 switch (this.direction) {
-                    .Up => spaceshipR.flags,
-                    .Down => spaceship.flags | w4.BLIT_FLIP_Y,
-                    .Left => spaceshipR.flags | w4.BLIT_ROTATE,
-                    .Right => spaceship.flags | w4.BLIT_ROTATE | w4.BLIT_FLIP_Y,
-                    .UR => spaceshipR.flags,
-                    .UL => spaceshipR.flags | w4.BLIT_ROTATE,
-                    .DR => spaceshipR.flags | w4.BLIT_FLIP_Y,
-                    .DL => spaceshipR.flags | w4.BLIT_FLIP_Y | w4.BLIT_FLIP_X,
+                    .Up => spritesheet.flags,
+                    .Down => spritesheet.flags | w4.BLIT_FLIP_Y,
+                    .Left => spritesheet.flags | w4.BLIT_ROTATE,
+                    .Right => spritesheet.flags | w4.BLIT_ROTATE | w4.BLIT_FLIP_Y,
+                    .UR => spritesheet.flags,
+                    .UL => spritesheet.flags | w4.BLIT_ROTATE,
+                    .DR => spritesheet.flags | w4.BLIT_FLIP_Y,
+                    .DL => spritesheet.flags | w4.BLIT_FLIP_Y | w4.BLIT_FLIP_X,
                 },
             );
             // w4.blit(

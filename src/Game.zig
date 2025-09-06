@@ -15,6 +15,7 @@ pub const Planet = @import("Game/Planet.zig");
 pub const Player = @import("Game/Player.zig");
 pub const Position = @import("Game/Position.zig");
 pub const Direction = Position.Direction;
+pub const Sound = @import("Game/sound.zig");
 
 const Game = @This();
 pub const PLANET_COUNT = 6;
@@ -23,7 +24,7 @@ pub const WORLD_LIMIT_Y = 5000;
 
 pub const State = enum { NotStarted, Running, Win, Over };
 
-const SECONDS_TO_DIE = 30;
+const SECONDS_TO_DIE = 10;
 
 state: State = .NotStarted,
 frame: usize = 0,
@@ -33,6 +34,23 @@ gamepad: Gamepad = undefined,
 planets: [PLANET_COUNT]Planet = undefined,
 hud: Hud = .{},
 remaining_time: isize = SECONDS_TO_DIE,
+
+endSound: i32 = 0,
+timeSound: f32 = 0,
+canPlaySound: bool = true,
+panicSoundOn: bool = false,
+pub const END_SOUND_LEN: usize = 3;
+pub const PANIC_SOUND_LEN: usize = 2;
+
+const panicSound: [2]Sound = .{
+    Sound.init(100, 100, 0, 36, 14, 14, 30, 1, 2),
+    Sound.init(200, 200, 0, 36, 14, 14, 30, 1, 2),
+};
+const loseSound: [3]Sound = .{
+    Sound.init(150, 150, 70, 36, 14, 14, 30, 1, 2),
+    Sound.init(100, 100, 70, 36, 14, 14, 30, 1, 2),
+    Sound.init(50, 50, 70, 36, 14, 14, 30, 1, 2),
+};
 
 pub fn init(allocator: mem.Allocator, rng: std.Random) !@This() {
     _ = rng; // autofix
@@ -85,8 +103,18 @@ pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
         .NotStarted => continue :loop .Running,
         .Running => {
             defer {
+                // if (this.panicSoundOn) {
+                //     this.timeSound = this.timeSound + 1;
+                //     if (this.t) {
+                //         Sound.playSound(panicSound[0]);
+                //     } else {
+                //         Sound.playSound(panicSound[1]);
+                //     }
+                //     this.timeSound = false;
+                // }
                 this.frame += 1;
                 if (this.frame % 60 == 0) {
+                    this.canPlaySound = true;
                     this.remaining_time -= 1;
                     if (this.remaining_time <= 10) {
                         w4.PALETTE.*[1] = 0xFF0000;
@@ -101,12 +129,17 @@ pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
 
             if (this.remaining_time <= 0) {
                 this.state = .Over;
+                //Sound.playSound(790, 320, 70, 36, 14, 14, 30, 0, 2);
+
                 continue :loop this.state;
             }
 
             const keyPressed = this.input(rng);
             try this.colide(allocator);
 
+            if (keyPressed) {
+                Sound.playSound(Sound.init(10, 15, 0, 10, 14, 14, 5, 0, 0));
+            }
             this.player.draw(&this.camera, keyPressed);
 
             inline for (0..PLANET_COUNT) |i| {
@@ -142,6 +175,18 @@ pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
                 \\Press 1 to reset
             ;
             w4.text(msg, w4.SCREEN_SIZE / 2 - 60, w4.SCREEN_SIZE / 2 - 10);
+            this.timeSound += 1;
+            if (this.canPlaySound) {
+                if (this.endSound < END_SOUND_LEN) {
+                    Sound.playSound(loseSound[@intCast(this.endSound)]);
+                    this.endSound = this.endSound + 1;
+                    this.canPlaySound = false;
+                }
+            }
+            if (@mod(this.timeSound, 60) == 0) {
+                this.timeSound = 0;
+                this.canPlaySound = true;
+            }
             _ = this.input(rng);
         },
     }
