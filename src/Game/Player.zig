@@ -41,14 +41,18 @@ pub fn draw(this: *const @This()) void {
     );
 }
 
-pub fn move(this: *@This(), dir: Direction) void {
+pub fn move(this: *@This(), dir: Direction, camera_position: Position) Position {
     // if (dir.areOpposites(this.direction)) return;
 
     const offset = dir.getPositionOffset();
+    var pos: Position = undefined;
 
     this.direction = dir;
+    pos.x = camera_position.x + this.speed * offset.x;
+    pos.y = camera_position.y + this.speed * offset.y;
     this.position.x = @mod(this.position.x + offset.x * this.speed, w4.SCREEN_SIZE);
     this.position.y = @mod(this.position.y + offset.y * this.speed, w4.SCREEN_SIZE);
 
     this.collider.position = this.position;
+    return pos;
 }
