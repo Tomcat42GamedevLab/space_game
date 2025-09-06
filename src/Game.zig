@@ -157,13 +157,13 @@ fn input(this: *@This(), rng: std.Random) void {
     if (gamepadState.@"1" and (gameState == .Over or gameState == .Win))
         this.reset(rng);
 
-    if (gamepadState.left) this.player.move(.Left);
+    if (gamepadState.left) this.player.move(.Left, this.gamepad);
 
-    if (gamepadState.right) this.player.move(.Right);
+    if (gamepadState.right) this.player.move(.Right, this.gamepad);
 
-    if (gamepadState.up) this.player.move(.Up);
+    if (gamepadState.up) this.player.move(.Up, this.gamepad);
 
-    if (gamepadState.down) this.player.move(.Down);
+    if (gamepadState.down) this.player.move(.Down, this.gamepad);
 }
 
 fn colide(this: *@This(), allocator: mem.Allocator) !void {
@@ -174,8 +174,8 @@ fn colide(this: *@This(), allocator: mem.Allocator) !void {
 
     const msg = try fmt.allocPrint(
         allocator,
-        "Player: ({}, {}) Camera: ({}, {})",
-        .{ x1, y1, x2, y2 },
+        "Player: ({}, {}) Camera: ({}, {}) dir: {}",
+        .{ x1, y1, x2, y2, player.direction },
     );
     defer allocator.free(msg);
     w4.trace(msg);

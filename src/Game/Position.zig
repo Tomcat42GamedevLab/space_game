@@ -10,6 +10,10 @@ pub const Direction = enum {
     Down,
     Left,
     Right,
+    UL,
+    UR,
+    DL,
+    DR,
 
     pub fn getPositionOffset(dir: Direction) Position {
         return switch (dir) {
@@ -17,6 +21,10 @@ pub const Direction = enum {
             .Down => .{ .x = 0, .y = 1 },
             .Left => .{ .x = -1, .y = 0 },
             .Right => .{ .x = 1, .y = 0 },
+            .UL => .{ .x = -1, .y = -1 },
+            .UR => .{ .x = 1, .y = -1 },
+            .DL => .{ .x = -1, .y = 1 },
+            .DR => .{ .x = 1, .y = 1 },
         };
     }
 
@@ -26,6 +34,10 @@ pub const Direction = enum {
             .Down => other == .Up,
             .Left => other == .Right,
             .Right => other == .Left,
+            .UL => other == .DR,
+            .UR => other == .DL,
+            .DL => other == .UR,
+            .DR => other == .UL,
         };
     }
 };
