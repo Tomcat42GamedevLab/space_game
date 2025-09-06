@@ -23,7 +23,7 @@ pub const WORLD_LIMIT_Y = 5000;
 
 pub const State = enum { NotStarted, Running, Win, Over };
 
-const SECONDS_TO_DIE = 300;
+const SECONDS_TO_DIE = 30;
 
 state: State = .NotStarted,
 frame: usize = 0,
@@ -86,7 +86,12 @@ pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
         .Running => {
             defer {
                 this.frame += 1;
-                if (this.frame % 60 == 0) this.remaining_time -= 1;
+                if (this.frame % 60 == 0) {
+                    this.remaining_time -= 1;
+                    if (this.remaining_time <= 10) {
+                        w4.PALETTE.*[1] = 0xFF0000;
+                    }
+                }
             }
 
             inline for (&this.planets) |*p| {
@@ -104,16 +109,15 @@ pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
 
             this.player.draw(&this.camera);
 
+            inline for (0..PLANET_COUNT) |i| {
+                this.planets[i].draw(&this.camera);
+            }
+            this.camera.move(this.player.position);
             try Hud.draw(
                 allocator,
                 &this.player,
                 this.remaining_time,
             );
-
-            inline for (0..PLANET_COUNT) |i| {
-                this.planets[i].draw(&this.camera);
-            }
-            this.camera.move(this.player.position);
         },
         .Win => {
             const msg = try fmt.allocPrint(
@@ -148,6 +152,7 @@ fn reset(this: *@This(), rng: std.Random) void {
     this.frame = 0;
     this.remaining_time = SECONDS_TO_DIE;
     this.player = Player.init(Position.random(rng));
+    w4.PALETTE.* = palettes.bittersweet;
 }
 
 fn input(this: *@This(), rng: std.Random) void {

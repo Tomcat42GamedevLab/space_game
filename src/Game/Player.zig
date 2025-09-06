@@ -79,8 +79,6 @@ pub fn draw(this: *const @This(), camera: *const Camera) void {
 pub fn move(this: *@This(), dir: Direction, gamepad: Gamepad) void {
     // if (dir.areOpposites(this.direction)) return;
 
-    const offset = dir.getPositionOffset();
-
     if (gamepad.state & 0x60 == 0x60) {
         this.direction = Direction.UR;
     } else if (gamepad.state & 0x50 == 0x50) {
@@ -98,6 +96,7 @@ pub fn move(this: *@This(), dir: Direction, gamepad: Gamepad) void {
     } else {
         this.direction = Direction.Right;
     }
+    const offset = dir.getPositionOffset();
 
     this.position.x = math.clamp(
         this.position.x + offset.x * this.speed,
