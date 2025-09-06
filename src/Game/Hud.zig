@@ -17,7 +17,7 @@ pub fn draw(
 ) !void {
     const hud_left = try fmt.allocPrint(
         allocator,
-        "x:{d:02.1}\ny:{d:02.1}\nlst:{s}",
+        "x:{d:02.1}\ny:{d:02.1}\nl:{s}",
         .{
             player.position.x,
             player.position.y,
@@ -28,7 +28,7 @@ pub fn draw(
 
     const hud_right = try fmt.allocPrint(
         allocator,
-        "tgt:{s}\nx:{d:02.1}\ny:{d:02.1}",
+        "t:{s}\nx:{d:02.1}\ny:{d:02.1}",
         .{
             target_planet.name,
             target_planet.position.x,

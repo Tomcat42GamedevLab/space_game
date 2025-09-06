@@ -163,4 +163,5 @@ pub fn move(this: *@This(), dir: Direction, gamepad: Gamepad) void {
         -Game.WORLD_LIMIT_Y,
         Game.WORLD_LIMIT_Y,
     );
+    this.collider.position = this.position;
 }

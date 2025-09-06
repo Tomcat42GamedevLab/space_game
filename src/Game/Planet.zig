@@ -71,4 +71,5 @@ pub fn move(this: *@This(), t: usize) void {
 
     this.position.x = relative_x;
     this.position.y = relative_y;
+    this.collider.position = this.position;
 }

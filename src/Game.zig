@@ -1,4 +1,5 @@
 const std = @import("std");
+const Random = std.Random;
 const math = std.math;
 const mem = std.mem;
 const fmt = std.fmt;
@@ -24,7 +25,7 @@ pub const WORLD_LIMIT_Y = 5000;
 
 pub const State = enum { NotStarted, Running, Win, Over };
 
-const SECONDS_TO_DIE = 100;
+const SECONDS_TO_DIE = 80;
 
 state: State = .NotStarted,
 frame: usize = 0,
@@ -61,13 +62,13 @@ pub fn init(allocator: mem.Allocator, rng: std.Random) !@This() {
 
     const planets: [PLANET_COUNT]Planet = .{
         Planet.init(
-            "Bett. II",
+            "Bet II",
             .{ .x = 0, .y = 0 },
             80,
             0.0,
         ),
         Planet.init(
-            "Aldeb. III",
+            "Alder",
             .{ .x = 100, .y = 0 },
             15,
             0.03,
@@ -84,7 +85,33 @@ pub fn init(allocator: mem.Allocator, rng: std.Random) !@This() {
 
 pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
     loop: switch (this.state) {
-        .NotStarted => continue :loop .Running,
+        .NotStarted => {
+            this.frame += 1;
+            const msg = try fmt.allocPrint(allocator,
+                \\You are a citizen
+                \\of a long gone and 
+                \\far away system
+                \\orbiting the Mighty
+                \\{s}.
+                \\
+                \\Oxygen is running 
+                \\low. Do you think 
+                \\that you can beat
+                \\the clock?
+                \\
+                \\Find a planet with 
+                \\oxygen so you can 
+                \\survive.
+                \\
+                \\Use Arrow Keys to
+                \\move around
+                \\
+                \\Press X to start
+            , .{this.planets[0].name});
+            defer allocator.free(msg);
+            w4.text(msg, 1, 1);
+            _ = this.input(rng);
+        },
         .Running => {
             defer {
                 // if (this.panicSoundOn) {
@@ -144,7 +171,7 @@ pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
                 allocator,
                 \\You Win!!!
                 \\Time Left: {d}
-                \\Press 1 to reset
+                \\Press X to reset
             ,
                 .{
                     this.remaining_time,
@@ -159,7 +186,7 @@ pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
         .Over => {
             const msg =
                 \\Game Over!!!
-                \\Press 1 to reset
+                \\Press X to reset
             ;
             w4.text(msg, w4.SCREEN_SIZE / 2 - 60, w4.SCREEN_SIZE / 2 - 10);
             this.timeSound += 1;
@@ -192,6 +219,21 @@ fn input(this: *@This(), rng: std.Random) bool {
     const gameState = this.state;
     var keyPressed = false;
 
+    if (gamepadState.@"1" and gameState == .NotStarted) {
+        // TODO: I'm a hack, FIXME later.
+        var prng_base: *Random.DefaultPrng = @ptrCast(@alignCast(rng.ptr));
+        prng_base.seed(this.frame);
+
+        const srcPlanetIndex = rng.intRangeAtMost(usize, 1, PLANET_COUNT - 1);
+        this.player.position = this.planets[srcPlanetIndex].position;
+
+        const dstPlanetIndex = rng.intRangeAtMost(usize, 1, PLANET_COUNT - 1);
+        this.target_planet = &this.planets[dstPlanetIndex];
+
+        this.frame = 0;
+        this.state = .Running;
+    }
+
     if (gamepadState.@"1" and (gameState == .Over or gameState == .Win))
         _ = this.reset(rng);
 
@@ -218,11 +260,25 @@ fn input(this: *@This(), rng: std.Random) bool {
 }
 
 fn colide(this: *@This(), allocator: mem.Allocator) !void {
-    _ = allocator; // autofix
     for (&this.planets) |*p| {
+        const msg = try fmt.allocPrint(allocator, "Player Colisor: x:{d:02.1} y:{d:02.1}\nPlanet Colisor: x:{d:02.1} y:{d:02.1}\n", .{
+            this.player.collider.position.x,
+            this.player.collider.position.y,
+            p.collider.position.x,
+            p.collider.position.y,
+        });
+        defer allocator.free(msg);
+        w4.trace(msg);
+
+        // Print the tgt planet
+        const msgs = try fmt.allocPrint(allocator, "Target Planet: {s}\n", .{this.target_planet.name});
+        defer allocator.free(msgs);
+        w4.trace(msgs);
+
         if (this.player.collider.collides(&p.collider)) {
-            w4.trace("Colision");
+            w4.trace("Colision Detected!\n");
             this.last_planet_visited = p;
+            if (p == this.target_planet) this.state = .Win;
         }
     }
 }
