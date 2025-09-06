@@ -1,4 +1,4 @@
-name: Build & Release WASM-4 Game
+name: Build, Release & Deploy WASM-4 Game
 
 on:
   push:
@@ -80,4 +80,28 @@ jobs:
           token: ${{ secrets.GH_PAT }}
           files: release/*
           generate_release_notes: true
+
+  deploy:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: wasm4-game
+          path: release
+      
+      - name: Setup butler
+        uses: remarkablegames/setup-butler@v2
+
+      - name: Upload to itch.io
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        run: |
+          butler push release/index.html ${{ vars.ITCHIO_USER }}/${{ vars.ITCHIO_GAME }}:html5 --userversion ${{ github.ref_name }}
+          butler push release/game.exe ${{ vars.ITCHIO_USER }}/${{ vars.ITCHIO_GAME }}:windows --userversion ${{ github.ref_name }}
+          butler push release/game ${{ vars.ITCHIO_USER }}/${{ vars.ITCHIO_GAME }}:linux --userversion ${{ github.ref_name }}
+          butler push release/game_osx ${{ vars.ITCHIO_USER }}/${{ vars.ITCHIO_GAME }}:osx --userversion ${{ github.ref_name }}
 
