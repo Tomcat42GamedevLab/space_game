@@ -66,12 +66,14 @@ pub fn init(allocator: mem.Allocator, rng: std.Random) !@This() {
             .{ .x = 0, .y = 0 },
             80,
             0.0,
+            0xFF00FF,
         ),
         Planet.init(
             "Alder",
             .{ .x = 100, .y = 0 },
             15,
             0.03,
+            0xFF0000,
         ),
     };
 
@@ -114,6 +116,7 @@ pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
         },
         .Running => {
             defer {
+                w4.PALETTE.*[3] = Player.getNearestPlanetColor(&this.player, &this.planets);
                 // if (this.panicSoundOn) {
                 //     this.timeSound = this.timeSound + 1;
                 //     if (this.t) {

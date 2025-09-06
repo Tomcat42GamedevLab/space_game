@@ -13,8 +13,9 @@ position: Position = .{},
 size: u32 = 1,
 speed: f32 = 0.01,
 collider: Collider,
+color: u32,
 
-pub fn init(name: []const u8, position: Position, size: u32, speed: f32) @This() {
+pub fn init(name: []const u8, position: Position, size: u32, speed: f32, color: u32) @This() {
     return .{
         .name = name,
         .position = position,
@@ -25,6 +26,7 @@ pub fn init(name: []const u8, position: Position, size: u32, speed: f32) @This()
             @floatFromInt(size),
             @floatFromInt(size),
         ),
+        .color = color,
     };
 }
 

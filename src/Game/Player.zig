@@ -10,6 +10,7 @@ const Direction = Position.Direction;
 const sprites = @import("sprites");
 const spaceship = sprites.spacheship;
 const spritesheet = sprites.spritesheet;
+const Planets = @import("Planet.zig");
 
 const w4 = @import("w4");
 
@@ -163,5 +164,20 @@ pub fn move(this: *@This(), dir: Direction, gamepad: Gamepad) void {
         -Game.WORLD_LIMIT_Y,
         Game.WORLD_LIMIT_Y,
     );
-    this.collider.position = this.position;
+
+    this.collider.position.x = this.position.x;
+    this.collider.position.y = this.position.y;
+}
+
+pub fn getNearestPlanetColor(this: *@This(), planets: []Planets) u32 {
+    const playerPos = this.position;
+    var nearPlanet: Planets = planets[0];
+    var nearPlanetDist = Position.distance(playerPos, planets[0].position);
+    for (planets) |p| {
+        if (Position.distance(playerPos, p.position) < nearPlanetDist) {
+            nearPlanet = p;
+            nearPlanetDist = Position.distance(playerPos, p.position);
+        }
+    }
+    return nearPlanet.color;
 }
