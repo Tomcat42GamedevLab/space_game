@@ -10,7 +10,7 @@ const w4 = @import("w4");
 const Game = @This();
 
 pub const Position = @import("Game/Position.zig");
-pub const Direction = @import("Game/Direction.zig");
+pub const Direction = Position.Direction;
 pub const Player = @import("Game/Player.zig");
 pub const Gamepad = @import("Game/Gamepad.zig");
 pub const Collider = @import("Game/Collider.zig");
@@ -65,17 +65,13 @@ pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
 fn input(this: *@This()) void {
     const state = this.gamepad.snapshot(.Hold);
 
-    if (state.left)
-        this.player.move(Direction.Left);
+    if (state.left) this.player.move(.Left);
 
-    if (state.right)
-        this.player.move(Direction.Right);
+    if (state.right) this.player.move(.Right);
 
-    if (state.up)
-        this.player.move(Direction.Up);
+    if (state.up) this.player.move(.Up);
 
-    if (state.down)
-        this.player.move(Direction.Down);
+    if (state.down) this.player.move(.Down);
 }
 
 fn colide(this: *@This(), allocator: mem.Allocator) !void {
