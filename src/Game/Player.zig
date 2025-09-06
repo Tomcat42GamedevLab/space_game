@@ -1,14 +1,14 @@
 const std = @import("std");
 const math = std.math;
+
 const Game = @import("Game");
 const Position = Game.Position;
 const Camera = Game.Camera;
 const Collider = Game.Collider;
 const Direction = Position.Direction;
-const w4 = @import("w4");
-
 const sprites = @import("sprites");
 const spaceship = sprites.spacheship;
+const w4 = @import("w4");
 
 position: Position = .{},
 direction: Direction = .Up,
@@ -32,8 +32,8 @@ pub fn draw(this: *const @This(), camera: *const Camera) void {
     w4.DRAW_COLORS.* = 0x0032;
     w4.blit(
         &spaceship.data,
-        x,
-        y,
+        x - spaceship.width / 2,
+        y - spaceship.height / 2,
         spaceship.width,
         spaceship.height,
         switch (this.direction) {
