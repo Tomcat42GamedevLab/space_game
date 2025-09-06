@@ -1,0 +1,61 @@
+name: Build WASM-4 Game
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Zig (master)
+        uses: goto-bus-stop/setup-zig@v2
+        with:
+          version: master # Use the latest development build of Zig
+
+      - name: Cache Zig build files
+        uses: actions/cache@v4
+        with:
+          path: zig-cache
+          key: ${{ runner.os }}-zig-${{ hashFiles('**/*.zig', 'build.zig') }}
+          restore-keys: |
+            ${{ runner.os }}-zig-
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install w4 tools
+        run: npm install -g wasm4
+
+      - name: Build and Bundle Game
+        shell: bash
+        run: |
+          mkdir -p release
+          zig build --release=small
+          w4 bundle \
+            --html release/index.html \
+            --windows release/game.exe \
+            --linux release/game \
+            --mac release/game_osx \
+            --title "${{ vars.GAME_NAME }}" \
+            --description "${{ vars.GAME_DESCRIPTION }}" \
+            --timestamp \
+            zig-out/bin/cart.wasm
+          chmod u+x release/game*
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasm4-game-linux
+          path: release
+
