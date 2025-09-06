@@ -300,9 +300,9 @@ fn colide(this: *@This(), allocator: mem.Allocator) !void {
         w4.trace(msgs);
 
         if (this.player.collider.collides(&p.collider)) {
-            w4.trace("Colision Detected!\n");
             this.last_planet_visited = p;
             if (p == this.target_planet) this.state = .Win;
+            if (p == &this.planets[0]) this.state = .Over;
         }
     }
 }
