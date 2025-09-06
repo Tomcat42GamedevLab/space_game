@@ -12,5 +12,6 @@ zig-out/
 build/
 build-*/
 docgen_tmp/
+release/*
 
 # End of https://www.toptal.com/developers/gitignore/api/zig

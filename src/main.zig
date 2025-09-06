@@ -1,9 +1,11 @@
 const std = @import("std");
+const fmt = std.fmt;
 const heap = std.heap;
 const FixedBufferAllocator = heap.FixedBufferAllocator;
 const Random = std.Random;
 
 const Game = @import("Game");
+const w4 = @import("w4");
 
 var game: Game = undefined;
 

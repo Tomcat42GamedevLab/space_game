@@ -42,10 +42,10 @@ pub const Direction = enum {
     }
 };
 
-x: f32 = 0,
-y: f32 = 0,
+x: f64 = 0,
+y: f64 = 0,
 
-pub fn init(x: f32, y: f32) @This() {
+pub fn init(x: f64, y: f64) @This() {
     return @This(){ .x = x, .y = y };
 }
 
@@ -58,8 +58,8 @@ pub fn eql(this: @This(), other: @This()) bool {
 pub fn random(rng: std.Random) @This() {
     const max = w4.SCREEN_SIZE;
     return @This(){
-        .x = rng.float(f32) * max,
-        .y = rng.float(f32) * max,
+        .x = rng.float(f64) * max,
+        .y = rng.float(f64) * max,
     };
 }
 
@@ -71,7 +71,7 @@ pub fn normalized(this: @This()) struct { i32, i32 } {
     };
 }
 
-pub fn distance(this: @This(), other: @This()) f32 {
+pub fn distance(this: @This(), other: @This()) f64 {
     const dx = this.x - other.x;
     const dy = this.y - other.y;
     return math.sqrt(dx * dx + dy * dy);

@@ -15,7 +15,7 @@ const w4 = @import("w4");
 
 position: Position = .{},
 direction: Direction = .Up,
-speed: f32 = 0.55,
+speed: f64 = 0.85,
 collider: Collider = .{},
 
 pub fn init(position: Position) @This() {
@@ -23,7 +23,8 @@ pub fn init(position: Position) @This() {
         .position = position,
         .collider = .{
             .position = position,
-            .size = 8,
+            .width = spaceship.width,
+            .height = spaceship.height,
         },
     };
 }
@@ -74,6 +75,17 @@ pub fn draw(this: *const @This(), camera: *const Camera) void {
             );
         },
     }
+
+    // Draw the colisor bounding box
+    w4.DRAW_COLORS.* = 0x0040;
+    const normalized = this.collider.position;
+    const cx, const cy = camera.worldToCamera(normalized).normalized();
+    w4.rect(
+        cx - @as(i32, @intFromFloat(math.round(this.collider.width) / 2)),
+        cy - @as(i32, @intFromFloat(math.round(this.collider.height) / 2)),
+        @intFromFloat(math.round(this.collider.width)),
+        @intFromFloat(math.round(this.collider.height)),
+    );
 }
 
 pub fn move(this: *@This(), dir: Direction, gamepad: Gamepad) void {
@@ -108,4 +120,7 @@ pub fn move(this: *@This(), dir: Direction, gamepad: Gamepad) void {
         -Game.WORLD_LIMIT_Y,
         Game.WORLD_LIMIT_Y,
     );
+
+    this.collider.position.x = this.position.x;
+    this.collider.position.y = this.position.y;
 }
