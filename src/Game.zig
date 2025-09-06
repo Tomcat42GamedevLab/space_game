@@ -7,6 +7,7 @@ pub const palettes = @import("palettes");
 pub const sprites = @import("sprites");
 const w4 = @import("w4");
 
+
 const Game = @This();
 
 pub const PLANET_COUNT = 2;
@@ -19,8 +20,18 @@ pub const Player = @import("Game/Player.zig");
 pub const Gamepad = @import("Game/Gamepad.zig");
 pub const Collider = @import("Game/Collider.zig");
 pub const Camera = @import("Game/Camera.zig");
+
 pub const Hud = @import("Game/Hud.zig");
 pub const Planet = @import("Game/Planet.zig");
+pub const Player = @import("Game/Player.zig");
+pub const Position = @import("Game/Position.zig");
+pub const Direction = Position.Direction;
+
+const Game = @This();
+
+pub const PLANET_COUNT = 6;
+pub const WORLD_LIMIT_X = 5000;
+pub const WORLD_LIMIT_Y = 5000;
 
 pub const State = enum { NotStarted, Running, Win, Over };
 
@@ -41,13 +52,41 @@ pub fn init(allocator: mem.Allocator, rng: std.Random) !@This() {
     w4.PALETTE.* = palettes.bittersweet;
 
     const planets: [PLANET_COUNT]Planet = .{
-        .{ .position = .{ .x = 0, .y = 0 }, .size = 10 },
-        .{ .position = .{ .x = 30, .y = 30 }, .size = 4 },
+        .{
+            .position = .{ .x = 0, .y = 0 },
+            .size = 80,
+            .speed = 0.0,
+        },
+        .{
+            .position = .{ .x = 60, .y = 0 },
+            .size = 15,
+            .speed = 0.02,
+        },
+        .{
+            .position = .{ .x = 90, .y = 0 },
+            .size = 20,
+            .speed = 0.011,
+        },
+        .{
+            .position = .{ .x = 130, .y = 0 },
+            .size = 10,
+            .speed = 0.0065,
+        },
+        .{
+            .position = .{ .x = 180, .y = 0 },
+            .size = 8,
+            .speed = 0.004,
+        },
+        .{
+            .position = .{ .x = 300, .y = 0 },
+            .size = 40,
+            .speed = 0.0018,
+        },
     };
 
     return @This(){
-        .player = Player.init(.{ .x = 31, .y = 31 }),
-        .camera = Camera.init(.{ .x = 31, .y = 31 }),
+        .player = Player.init(.{ .x = 0, .y = 0 }),
+        .camera = Camera.init(.{ .x = 0, .y = 0 }),
         .gamepad = Gamepad.init(w4.GAMEPAD1),
         .planets = planets,
     };
@@ -57,9 +96,14 @@ pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
     loop: switch (this.state) {
         .NotStarted => continue :loop .Running,
         .Running => {
-            defer this.frame += 1;
             defer {
+                this.frame += 1;
                 if (this.frame % 60 == 0) this.remaining_time -= 1;
+            }
+
+            inline for (&this.planets) |*p| {
+                p.move(this.frame);
+                p.draw(&this.camera);
             }
 
             if (this.remaining_time <= 0) {
@@ -71,11 +115,13 @@ pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
             try this.colide(allocator);
 
             this.player.draw(&this.camera);
+
             try Hud.draw(
                 allocator,
                 &this.player,
                 this.remaining_time,
             );
+
             inline for (0..PLANET_COUNT) |i| {
                 this.planets[i].draw(&this.camera);
             }

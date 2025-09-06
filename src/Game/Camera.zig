@@ -15,6 +15,7 @@ pub fn init(position: Position) @This() {
     return .{ .position = position };
 }
 
+
 pub fn move(this: *@This(), player_pos: Position) void {
     const camera_smoothing = 20;
 
