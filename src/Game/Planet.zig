@@ -21,6 +21,7 @@ pub fn init(position: Position, size: u32) @This() {
 
 pub fn draw(this: *const @This(), camera: *const Camera) void {
     const posInCameraSystem = camera.worldToCamera(this.position);
+    const posCenterWorld = camera.worldToCamera(Position.init(0, 0));
     const x, const y = posInCameraSystem.normalized();
 
     w4.DRAW_COLORS.* = 0x0032;
@@ -36,8 +37,8 @@ pub fn draw(this: *const @This(), camera: *const Camera) void {
     const width: u32 = @intFromFloat(math.round(this.position.distance(.{ .x = 0, .y = 0 }) * 2));
     const height: u32 = @intFromFloat(math.round(this.position.distance(.{ .x = 0, .y = 0 }) * 2));
     w4.oval(
-        -@as(i32, @intCast(width / 2)),
-        -@as(i32, @intCast(height / 2)),
+        -@as(i32, @intCast(width / 2)) + @as(i32, @intFromFloat(posCenterWorld.x)),
+        -@as(i32, @intCast(height / 2)) + @as(i32, @intFromFloat(posCenterWorld.y)),
         width,
         height,
     );
