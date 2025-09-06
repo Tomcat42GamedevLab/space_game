@@ -15,6 +15,7 @@ pub const Planet = @import("Game/Planet.zig");
 pub const Player = @import("Game/Player.zig");
 pub const Position = @import("Game/Position.zig");
 pub const Direction = Position.Direction;
+pub const Sound = @import("Game/sound.zig");
 
 const Game = @This();
 pub const PLANET_COUNT = 6;
@@ -107,6 +108,9 @@ pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
             const keyPressed = this.input(rng);
             try this.colide(allocator);
 
+            if (keyPressed) {
+                Sound.playSound(10, 15, 0, 10, 14, 14, 5, 0, 0);
+            }
             this.player.draw(&this.camera, keyPressed);
 
             inline for (0..PLANET_COUNT) |i| {
