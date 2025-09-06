@@ -58,3 +58,9 @@ pub fn normalized(this: @This()) struct { i32, i32 } {
         @intFromFloat(math.round(this.y)),
     };
 }
+
+pub fn distance(this: @This(), other: @This()) f32 {
+    const dx = this.x - other.x;
+    const dy = this.y - other.y;
+    return math.sqrt(dx * dx + dy * dy);
+}
