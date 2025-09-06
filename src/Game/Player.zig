@@ -42,7 +42,7 @@ pub fn draw(this: *const @This()) void {
 }
 
 pub fn move(this: *@This(), dir: Direction) void {
-    if (dir.areOpposites(this.direction)) return;
+    // if (dir.areOpposites(this.direction)) return;
 
     const offset = dir.getPositionOffset();
 
