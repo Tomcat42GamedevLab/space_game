@@ -9,12 +9,15 @@ const w4 = @import("w4");
 
 const Game = @This();
 
+pub const PLANET_COUNT = 9;
+
 pub const Position = @import("Game/Position.zig");
 pub const Direction = Position.Direction;
 pub const Player = @import("Game/Player.zig");
 pub const Gamepad = @import("Game/Gamepad.zig");
 pub const Collider = @import("Game/Collider.zig");
 pub const Hud = @import("Game/Hud.zig");
+pub const Planet = @import("Game/Planet.zig");
 
 pub const State = enum { NotStarted, Running, Win, Over };
 
@@ -24,6 +27,8 @@ state: State = .NotStarted,
 frame: usize = 0,
 player: Player = undefined,
 gamepad: Gamepad = undefined,
+planets: [PLANET_COUNT]Planet = undefined,
+camera_position: Position = Position.init(0, 0),
 hud: Hud = .{},
 remaining_time: isize = SECONDS_TO_DIE,
 
@@ -31,9 +36,16 @@ pub fn init(allocator: mem.Allocator, rng: std.Random) !@This() {
     _ = allocator; // autofix
     w4.PALETTE.* = palettes.bittersweet;
 
+    var planets: [PLANET_COUNT]Planet = undefined;
+
+    inline for (0..PLANET_COUNT) |i| {
+        planets[i] = Planet.init(Position.init(i * 200, 100 - (i * 5 + 10) / 2), i * 8 + 10);
+    }
+
     return @This(){
         .player = Player.init(Position.random(rng)),
         .gamepad = Gamepad.init(w4.GAMEPAD1),
+        .planets = planets,
     };
 }
 
@@ -105,11 +117,11 @@ fn input(this: *@This(), rng: std.Random) void {
 
     if (gamepadState.left) this.player.move(.Left);
 
-    if (gamepadState.right) this.player.move(.Right);
+    if (state.right) this.camera_position = this.player.move(.Right, this.camera_position);
 
-    if (gamepadState.up) this.player.move(.Up);
+    if (state.up) this.camera_position = this.player.move(.Up, this.camera_position);
 
-    if (gamepadState.down) this.player.move(.Down);
+    if (state.down) this.camera_position = this.player.move(.Down, this.camera_position);
 }
 
 fn colide(this: *@This(), allocator: mem.Allocator) !void {
