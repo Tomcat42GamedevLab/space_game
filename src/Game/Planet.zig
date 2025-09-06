@@ -8,14 +8,23 @@ const Collider = Game.Collider;
 const Direction = Game.Direction;
 const w4 = @import("w4");
 
+name: []const u8 = "Planet",
 position: Position = .{},
 size: u32 = 1,
 speed: f32 = 0.01,
+collider: Collider,
 
-pub fn init(position: Position, size: u32) @This() {
+pub fn init(name: []const u8, position: Position, size: u32, speed: f32) @This() {
     return .{
+        .name = name,
         .position = position,
         .size = size,
+        .speed = speed,
+        .collider = Collider.init(
+            position,
+            @floatFromInt(size),
+            @floatFromInt(size),
+        ),
     };
 }
 
@@ -41,6 +50,15 @@ pub fn draw(this: *const @This(), camera: *const Camera) void {
         -@as(i32, @intCast(height / 2)) + @as(i32, @intFromFloat(posCenterWorld.y)),
         width,
         height,
+    );
+
+    // Draw the player colisor
+    w4.DRAW_COLORS.* = 0x0040;
+    w4.rect(
+        x - @as(i32, @intFromFloat(this.collider.width / 2)),
+        y - @as(i32, @intFromFloat(this.collider.height / 2)),
+        @intFromFloat(this.collider.width),
+        @intFromFloat(this.collider.height),
     );
 }
 
