@@ -4,9 +4,11 @@ const Collider = Game.Collider;
 const Direction = Game.Direction;
 const w4 = @import("w4");
 
+const sprites = @import("sprites");
+
 position: Position = .{},
 direction: Position = Direction.Up,
-speed: f32 = 0.15,
+speed: f32 = 0.55,
 collider: Collider = .{},
 
 pub fn init(position: Position) @This() {
@@ -14,20 +16,23 @@ pub fn init(position: Position) @This() {
         .position = position,
         .collider = .{
             .position = position,
-            .size = 1,
+            .size = 8,
         },
     };
 }
 
 pub fn draw(this: *const @This()) void {
     const x, const y = this.position.normalized();
+    const spaceship = sprites.spacheship;
 
     w4.DRAW_COLORS.* = 0x0032;
-    w4.rect(
-        x * Game.PIXEL_SIZE,
-        y * Game.PIXEL_SIZE,
-        Game.PIXEL_SIZE,
-        Game.PIXEL_SIZE,
+    w4.blit(
+        &spaceship.data,
+        x,
+        y,
+        spaceship.width,
+        spaceship.height,
+        spaceship.flags,
     );
 }
 
@@ -41,14 +46,8 @@ pub fn move(this: *@This(), dir: Position) void {
         dir.eql(Direction.Left) or dir.eql(Direction.Right))
     {
         this.direction = dir;
-        this.position.x = @mod(
-            this.position.x + dir.x * this.speed,
-            w4.SCREEN_SIZE / Game.PIXEL_SIZE,
-        );
-        this.position.y = @mod(
-            this.position.y + dir.y * this.speed,
-            w4.SCREEN_SIZE / Game.PIXEL_SIZE,
-        );
+        this.position.x = @mod(this.position.x + dir.x * this.speed, w4.SCREEN_SIZE);
+        this.position.y = @mod(this.position.y + dir.y * this.speed, w4.SCREEN_SIZE);
         this.collider.position = this.position;
     }
 }

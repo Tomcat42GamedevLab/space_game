@@ -18,7 +18,7 @@ pub fn eql(this: @This(), other: @This()) bool {
 }
 
 pub fn random(rng: std.Random) @This() {
-    const max = w4.SCREEN_SIZE / Game.PIXEL_SIZE;
+    const max = w4.SCREEN_SIZE;
     return @This(){
         .x = rng.float(f32) * max,
         .y = rng.float(f32) * max,
