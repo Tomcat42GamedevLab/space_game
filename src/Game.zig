@@ -7,20 +7,9 @@ pub const palettes = @import("palettes");
 pub const sprites = @import("sprites");
 const w4 = @import("w4");
 
-
-const Game = @This();
-
-pub const PLANET_COUNT = 2;
-pub const WORLD_LIMIT_X = 5000;
-pub const WORLD_LIMIT_Y = 5000;
-
-pub const Position = @import("Game/Position.zig");
-pub const Direction = Position.Direction;
-pub const Player = @import("Game/Player.zig");
-pub const Gamepad = @import("Game/Gamepad.zig");
-pub const Collider = @import("Game/Collider.zig");
 pub const Camera = @import("Game/Camera.zig");
-
+pub const Collider = @import("Game/Collider.zig");
+pub const Gamepad = @import("Game/Gamepad.zig");
 pub const Hud = @import("Game/Hud.zig");
 pub const Planet = @import("Game/Planet.zig");
 pub const Player = @import("Game/Player.zig");
@@ -28,7 +17,6 @@ pub const Position = @import("Game/Position.zig");
 pub const Direction = Position.Direction;
 
 const Game = @This();
-
 pub const PLANET_COUNT = 6;
 pub const WORLD_LIMIT_X = 5000;
 pub const WORLD_LIMIT_Y = 5000;
