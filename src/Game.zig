@@ -112,9 +112,14 @@ pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
                 continue :loop this.state;
             }
 
-            this.input(rng);
+            const keyPressed = this.input(rng);
             try this.colide(allocator);
 
+            this.player.draw(&this.camera, keyPressed);
+
+            inline for (0..PLANET_COUNT) |i| {
+                this.planets[i].draw(&this.camera);
+            }
             this.camera.move(this.player.position);
             // inline for (0..PLANET_COUNT) |i| this.planets[i].move(this.frame);
             try Hud.draw(
@@ -140,7 +145,7 @@ pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
             defer allocator.free(msg);
 
             w4.text(msg, w4.SCREEN_SIZE / 2 - 60, w4.SCREEN_SIZE / 2 - 10);
-            this.input(rng);
+            _ = this.input(rng);
         },
 
         .Over => {
@@ -149,7 +154,7 @@ pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
                 \\Press 1 to reset
             ;
             w4.text(msg, w4.SCREEN_SIZE / 2 - 60, w4.SCREEN_SIZE / 2 - 10);
-            this.input(rng);
+            _ = this.input(rng);
         },
     }
 }
@@ -162,9 +167,10 @@ fn reset(this: *@This(), rng: std.Random) void {
     w4.PALETTE.* = palettes.bittersweet;
 }
 
-fn input(this: *@This(), rng: std.Random) void {
+fn input(this: *@This(), rng: std.Random) bool {
     const gamepadState = this.gamepad.snapshot(.Hold);
     const gameState = this.state;
+    var keyPressed = false;
 
     if (gamepadState.@"1" and gameState == .NotStarted) {
         // TODO: I'm a hack, FIXME later.
@@ -182,15 +188,28 @@ fn input(this: *@This(), rng: std.Random) void {
     }
 
     if (gamepadState.@"1" and (gameState == .Over or gameState == .Win))
-        this.reset(rng);
+        _ = this.reset(rng);
 
-    if (gamepadState.left) this.player.move(.Left, this.gamepad);
+    if (gamepadState.left) {
+        this.player.move(.Left, this.gamepad);
+        keyPressed = true;
+    }
 
-    if (gamepadState.right) this.player.move(.Right, this.gamepad);
+    if (gamepadState.right) {
+        this.player.move(.Right, this.gamepad);
+        keyPressed = true;
+    }
 
-    if (gamepadState.up) this.player.move(.Up, this.gamepad);
+    if (gamepadState.up) {
+        this.player.move(.Up, this.gamepad);
+        keyPressed = true;
+    }
 
-    if (gamepadState.down) this.player.move(.Down, this.gamepad);
+    if (gamepadState.down) {
+        this.player.move(.Down, this.gamepad);
+        keyPressed = true;
+    }
+    return keyPressed;
 }
 
 fn colide(this: *@This(), allocator: mem.Allocator) !void {

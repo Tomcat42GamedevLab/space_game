@@ -10,6 +10,7 @@ const Direction = Position.Direction;
 const sprites = @import("sprites");
 const spaceship = sprites.spacheship;
 const spaceshipR = sprites.spaceshipRotate;
+const spritesheet = sprites.spritesheet;
 
 const w4 = @import("w4");
 
@@ -29,19 +30,28 @@ pub fn init(position: Position) @This() {
     };
 }
 
-pub fn draw(this: *const @This(), camera: *const Camera) void {
+pub fn draw(this: *const @This(), camera: *const Camera, isForward: bool) void {
     const posInCameraSystem = camera.worldToCamera(this.position);
     const x, const y = posInCameraSystem.normalized();
+    var spriteY: u32 = undefined;
+    if (isForward) {
+        spriteY = 40;
+    } else {
+        spriteY = 0;
+    }
 
     w4.DRAW_COLORS.* = 0x0032;
     switch (this.direction) {
         .Up, .Down, .Left, .Right => {
-            w4.blit(
-                &spaceship.data,
-                x - spaceship.width / 2,
-                y - spaceship.height / 2,
-                spaceship.width,
-                spaceship.height,
+            w4.blitSub(
+                &spritesheet.data,
+                x - 16,
+                y - 16,
+                29,
+                35,
+                0,
+                spriteY,
+                68,
                 switch (this.direction) {
                     .Up => spaceship.flags,
                     .Down => spaceship.flags | w4.BLIT_FLIP_Y,
@@ -53,15 +63,35 @@ pub fn draw(this: *const @This(), camera: *const Camera) void {
                     .DL => spaceshipR.flags | w4.BLIT_ROTATE | w4.BLIT_FLIP_Y,
                 },
             );
-        },
 
+            // w4.blit(
+            //     &spaceship.data,
+            //     x - spaceship.width / 2,
+            //     y - spaceship.height / 2,
+            //     spaceship.width,
+            //     spaceship.height,
+            //     switch (this.direction) {
+            //         .Up => spaceship.flags,
+            //         .Down => spaceship.flags | w4.BLIT_FLIP_Y,
+            //         .Left => spaceship.flags | w4.BLIT_ROTATE,
+            //         .Right => spaceship.flags | w4.BLIT_ROTATE | w4.BLIT_FLIP_Y,
+            //         .UR => spaceshipR.flags,
+            //         .UL => spaceshipR.flags | w4.BLIT_FLIP_Y,
+            //         .DR => spaceshipR.flags | w4.BLIT_ROTATE,
+            //         .DL => spaceshipR.flags | w4.BLIT_ROTATE | w4.BLIT_FLIP_Y,
+            //     },
+            // );
+        },
         .UR, .UL, .DR, .DL => {
-            w4.blit(
-                &spaceshipR.data,
-                x - spaceshipR.width / 2,
-                y - spaceshipR.height / 2,
-                spaceshipR.width,
-                spaceshipR.height,
+            w4.blitSub(
+                &spritesheet.data,
+                x - 20,
+                y - 20,
+                40,
+                40,
+                28,
+                spriteY,
+                68,
                 switch (this.direction) {
                     .Up => spaceshipR.flags,
                     .Down => spaceship.flags | w4.BLIT_FLIP_Y,
@@ -73,6 +103,23 @@ pub fn draw(this: *const @This(), camera: *const Camera) void {
                     .DL => spaceshipR.flags | w4.BLIT_FLIP_Y | w4.BLIT_FLIP_X,
                 },
             );
+            // w4.blit(
+            //     &spaceshipR.data,
+            //     x - spaceshipR.width / 2,
+            //     y - spaceshipR.height / 2,
+            //     spaceshipR.width,
+            //     spaceshipR.height,
+            //     switch (this.direction) {
+            //         .Up => spaceshipR.flags,
+            //         .Down => spaceship.flags | w4.BLIT_FLIP_Y,
+            //         .Left => spaceshipR.flags | w4.BLIT_ROTATE,
+            //         .Right => spaceship.flags | w4.BLIT_ROTATE | w4.BLIT_FLIP_Y,
+            //         .UR => spaceshipR.flags,
+            //         .UL => spaceshipR.flags | w4.BLIT_ROTATE,
+            //         .DR => spaceshipR.flags | w4.BLIT_FLIP_Y,
+            //         .DL => spaceshipR.flags | w4.BLIT_FLIP_Y | w4.BLIT_FLIP_X,
+            //     },
+            // );
         },
     }
 
