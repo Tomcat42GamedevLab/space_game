@@ -24,7 +24,7 @@ pub const WORLD_LIMIT_Y = 5000;
 
 pub const State = enum { NotStarted, Running, Win, Over };
 
-const SECONDS_TO_DIE = 10;
+const SECONDS_TO_DIE = 30;
 
 state: State = .NotStarted,
 frame: usize = 0,
@@ -39,6 +39,7 @@ endSound: i32 = 0,
 timeSound: f32 = 0,
 canPlaySound: bool = true,
 panicSoundOn: bool = false,
+panicSoundBeat: i32 = 0,
 pub const END_SOUND_LEN: usize = 3;
 pub const PANIC_SOUND_LEN: usize = 2;
 
@@ -50,6 +51,11 @@ const loseSound: [3]Sound = .{
     Sound.init(150, 150, 70, 36, 14, 14, 30, 1, 2),
     Sound.init(100, 100, 70, 36, 14, 14, 30, 1, 2),
     Sound.init(50, 50, 70, 36, 14, 14, 30, 1, 2),
+};
+const winSound: [3]Sound = .{
+    Sound.init(250, 250, 70, 0, 14, 1, 30, 1, 2),
+    Sound.init(400, 400, 0, 50, 14, 1, 30, 1, 2),
+    Sound.init(500, 600, 0, 50, 14, 1, 30, 1, 2),
 };
 
 pub fn init(allocator: mem.Allocator, rng: std.Random) !@This() {
@@ -84,8 +90,8 @@ pub fn init(allocator: mem.Allocator, rng: std.Random) !@This() {
             .speed = 0.004,
         },
         .{
-            .position = .{ .x = 300, .y = 0 },
-            .size = 40,
+            .position = .{ .x = 600, .y = 0 },
+            .size = 100,
             .speed = 0.0018,
         },
     };
@@ -103,21 +109,28 @@ pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
         .NotStarted => continue :loop .Running,
         .Running => {
             defer {
-                // if (this.panicSoundOn) {
-                //     this.timeSound = this.timeSound + 1;
-                //     if (this.t) {
-                //         Sound.playSound(panicSound[0]);
-                //     } else {
-                //         Sound.playSound(panicSound[1]);
-                //     }
-                //     this.timeSound = false;
-                // }
+                if (this.panicSoundOn) {
+                    this.timeSound = this.timeSound + 1;
+                    if (this.canPlaySound) {
+                        if (this.panicSoundBeat == 0) {
+                            Sound.playSound(panicSound[0]);
+                            this.panicSoundBeat = 1;
+                        } else {
+                            Sound.playSound(panicSound[1]);
+                            this.panicSoundBeat = 0;
+                        }
+                        this.canPlaySound = false;
+                    }
+                }
                 this.frame += 1;
-                if (this.frame % 60 == 0) {
+
+                if (this.frame % 30 == 0)
                     this.canPlaySound = true;
+                if (this.frame % 60 == 0) {
                     this.remaining_time -= 1;
                     if (this.remaining_time <= 10) {
                         w4.PALETTE.*[1] = 0xFF0000;
+                        this.panicSoundOn = true;
                     }
                 }
             }
@@ -129,6 +142,7 @@ pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
 
             if (this.remaining_time <= 0) {
                 this.state = .Over;
+                this.canPlaySound = false;
                 //Sound.playSound(790, 320, 70, 36, 14, 14, 30, 0, 2);
 
                 continue :loop this.state;
@@ -166,6 +180,18 @@ pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
             defer allocator.free(msg);
 
             w4.text(msg, w4.SCREEN_SIZE / 2 - 60, w4.SCREEN_SIZE / 2 - 10);
+            this.timeSound += 1;
+            if (this.canPlaySound) {
+                if (this.endSound < END_SOUND_LEN) {
+                    Sound.playSound(winSound[@intCast(this.endSound)]);
+                    this.endSound = this.endSound + 1;
+                    this.canPlaySound = false;
+                }
+            }
+            if (@mod(this.timeSound, 60) == 0) {
+                this.timeSound = 0;
+                this.canPlaySound = true;
+            }
             _ = this.input(rng);
         },
 
