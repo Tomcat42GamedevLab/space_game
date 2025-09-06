@@ -16,14 +16,16 @@ pub const Gamepad = @import("Game/Gamepad.zig");
 pub const Collider = @import("Game/Collider.zig");
 pub const Hud = @import("Game/Hud.zig");
 
-pub const State = enum { NotStarted, Running, Paused, Win, Over };
+pub const State = enum { NotStarted, Running, Win, Over };
+
+const SECONDS_TO_DIE = 300;
 
 state: State = .NotStarted,
 frame: usize = 0,
 player: Player = undefined,
 gamepad: Gamepad = undefined,
 hud: Hud = .{},
-remaining_time: isize = 300, // in seconds
+remaining_time: isize = SECONDS_TO_DIE,
 
 pub fn init(allocator: mem.Allocator, rng: std.Random) !@This() {
     _ = allocator; // autofix
@@ -36,8 +38,6 @@ pub fn init(allocator: mem.Allocator, rng: std.Random) !@This() {
 }
 
 pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
-    _ = rng; // autofix
-
     loop: switch (this.state) {
         .NotStarted => continue :loop .Running,
         .Running => {
@@ -46,7 +46,12 @@ pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
                 if (this.frame % 60 == 0) this.remaining_time -= 1;
             }
 
-            this.input();
+            if (this.remaining_time <= 0) {
+                this.state = .Over;
+                continue :loop this.state;
+            }
+
+            this.input(rng);
             try this.colide(allocator);
 
             this.player.draw();
@@ -56,28 +61,60 @@ pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
                 this.remaining_time,
             );
         },
-        .Paused => w4.trace("Paused"),
-        .Win => w4.trace("You Win!"),
-        .Over => w4.trace("Game Over"),
+        .Win => {
+            const msg = try fmt.allocPrint(
+                allocator,
+                \\You Win!!!
+                \\Time Left: {d}
+                \\Press 1 to reset
+            ,
+                .{
+                    this.remaining_time,
+                },
+            );
+            defer allocator.free(msg);
+
+            w4.text(msg, w4.SCREEN_SIZE / 2 - 60, w4.SCREEN_SIZE / 2 - 10);
+            this.input(rng);
+        },
+
+        .Over => {
+            const msg =
+                \\Game Over!!!
+                \\Press 1 to reset
+            ;
+            w4.text(msg, w4.SCREEN_SIZE / 2 - 60, w4.SCREEN_SIZE / 2 - 10);
+            this.input(rng);
+        },
     }
 }
 
-fn input(this: *@This()) void {
-    const state = this.gamepad.snapshot(.Hold);
+fn reset(this: *@This(), rng: std.Random) void {
+    this.state = .NotStarted;
+    this.frame = 0;
+    this.remaining_time = SECONDS_TO_DIE;
+    this.player = Player.init(Position.random(rng));
+}
 
-    if (state.left) this.player.move(.Left);
+fn input(this: *@This(), rng: std.Random) void {
+    const gamepadState = this.gamepad.snapshot(.Hold);
+    const gameState = this.state;
 
-    if (state.right) this.player.move(.Right);
+    if (gamepadState.@"1" and (gameState == .Over or gameState == .Win))
+        this.reset(rng);
 
-    if (state.up) this.player.move(.Up);
+    if (gamepadState.left) this.player.move(.Left);
 
-    if (state.down) this.player.move(.Down);
+    if (gamepadState.right) this.player.move(.Right);
+
+    if (gamepadState.up) this.player.move(.Up);
+
+    if (gamepadState.down) this.player.move(.Down);
 }
 
 fn colide(this: *@This(), allocator: mem.Allocator) !void {
     // Check collisions with player 1
     const player = this.player;
-
     const x1, const y1 = player.position.normalized();
 
     const msg = try fmt.allocPrint(
