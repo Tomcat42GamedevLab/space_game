@@ -107,7 +107,7 @@ pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
             , .{this.planets[0].name});
             defer allocator.free(msg);
             w4.text(msg, 1, 1);
-            this.input(rng);
+            _ = this.input(rng);
         },
         .Running => {
             defer {
@@ -133,7 +133,7 @@ pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
             inline for (&this.planets) |*p|
                 p.draw(&this.camera, allocator);
 
-            this.player.draw(&this.camera);
+            this.player.draw(&this.camera, true);
 
             if (this.remaining_time <= 0) {
                 this.state = .Over;
@@ -151,7 +151,7 @@ pub fn update(this: *@This(), allocator: mem.Allocator, rng: std.Random) !void {
             this.player.draw(&this.camera, keyPressed);
 
             inline for (0..PLANET_COUNT) |i| {
-                this.planets[i].draw(&this.camera);
+                this.planets[i].draw(&this.camera, allocator);
             }
             this.camera.move(this.player.position);
             // inline for (0..PLANET_COUNT) |i| this.planets[i].move(this.frame);

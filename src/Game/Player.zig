@@ -8,6 +8,7 @@ const Camera = Game.Camera;
 const Collider = Game.Collider;
 const Direction = Position.Direction;
 const sprites = @import("sprites");
+const spaceship = sprites.spacheship;
 const spritesheet = sprites.spritesheet;
 
 const w4 = @import("w4");
