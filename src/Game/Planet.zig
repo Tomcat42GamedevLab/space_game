@@ -1,4 +1,8 @@
+const std = @import("std");
+const math = std.math;
+
 const Game = @import("Game");
+const Camera = Game.Camera;
 const Position = Game.Position;
 const Collider = Game.Collider;
 const Direction = Game.Direction;
@@ -14,15 +18,10 @@ pub fn init(position: Position, size: u32) @This() {
     };
 }
 
-pub fn draw(this: *const @This(), offset: Position) void {
-    const x, const y = this.position.normalized();
-    const x_off, const y_off = offset.normalized();
+pub fn draw(this: *const @This(), camera: *const Camera) void {
+    const posInCameraSystem = camera.worldToCamera(this.position);
+    const x, const y = posInCameraSystem.normalized();
 
     w4.DRAW_COLORS.* = 0x0032;
-    w4.oval(
-        x - x_off,
-        y - y_off,
-        this.size,
-        this.size,
-    );
+    w4.oval(x, y, this.size, this.size);
 }

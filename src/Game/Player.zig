@@ -1,10 +1,14 @@
+const std = @import("std");
+const math = std.math;
 const Game = @import("Game");
 const Position = Game.Position;
+const Camera = Game.Camera;
 const Collider = Game.Collider;
 const Direction = Position.Direction;
 const w4 = @import("w4");
 
 const sprites = @import("sprites");
+const spaceship = sprites.spacheship;
 
 position: Position = .{},
 direction: Direction = .Up,
@@ -21,9 +25,9 @@ pub fn init(position: Position) @This() {
     };
 }
 
-pub fn draw(this: *const @This()) void {
-    const x, const y = this.position.normalized();
-    const spaceship = sprites.spacheship;
+pub fn draw(this: *const @This(), camera: *const Camera) void {
+    const posInCameraSystem = camera.worldToCamera(this.position);
+    const x, const y = posInCameraSystem.normalized();
 
     w4.DRAW_COLORS.* = 0x0032;
     w4.blit(
@@ -41,18 +45,21 @@ pub fn draw(this: *const @This()) void {
     );
 }
 
-pub fn move(this: *@This(), dir: Direction, camera_position: Position) Position {
+pub fn move(this: *@This(), dir: Direction) void {
     // if (dir.areOpposites(this.direction)) return;
 
     const offset = dir.getPositionOffset();
-    var pos: Position = undefined;
 
     this.direction = dir;
-    pos.x = camera_position.x + this.speed * offset.x;
-    pos.y = camera_position.y + this.speed * offset.y;
-    this.position.x = @mod(this.position.x + offset.x * this.speed, w4.SCREEN_SIZE);
-    this.position.y = @mod(this.position.y + offset.y * this.speed, w4.SCREEN_SIZE);
 
-    this.collider.position = this.position;
-    return pos;
+    this.position.x = math.clamp(
+        this.position.x + offset.x * this.speed,
+        -Game.WORLD_LIMIT_X,
+        Game.WORLD_LIMIT_X,
+    );
+    this.position.y = math.clamp(
+        this.position.y - offset.y * this.speed,
+        -Game.WORLD_LIMIT_Y,
+        Game.WORLD_LIMIT_Y,
+    );
 }
